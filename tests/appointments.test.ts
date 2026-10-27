@@ -65,6 +65,18 @@ describe("Appointments API", () => {
     expect(response.status).toBe(400);
   });
 
+  it("rejects malformed JSON", async () => {
+    const response = await request(app)
+      .post("/api/appointments")
+      .set("Content-Type", "application/json")
+      .send('{"patientName": ');
+
+    expect(response.status).toBe(400);
+    expect(response.body.error.message).toBe(
+      "JSON inválido no corpo da requisição",
+    );
+  });
+
   it("rejects conflict for the same doctor and time", async () => {
     const scheduledAt = futureDate(48);
     const payload = {

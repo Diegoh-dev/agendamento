@@ -1,4 +1,14 @@
 import type { NextFunction, Request, Response } from "express";
+import { AppError } from "../errors/app-error.js";
+
+function sendError(res: Response, status: number, message: string): void {
+  res.status(status).json({
+    error: {
+      message,
+      status,
+    },
+  });
+}
 
 export function errorMiddleware(
   err: unknown,
@@ -6,21 +16,16 @@ export function errorMiddleware(
   res: Response,
   _next: NextFunction,
 ): void {
-  const status =
-    typeof err === "object" &&
-    err !== null &&
-    "status" in err &&
-    typeof (err as { status: unknown }).status === "number"
-      ? (err as { status: number }).status
-      : 500;
+  if (err instanceof AppError) {
+    sendError(res, err.status, err.message);
+    return;
+  }
 
-  const message =
-    err instanceof Error ? err.message : "Internal Server Error";
+  if (err instanceof SyntaxError && "body" in err) {
+    sendError(res, 400, "JSON inválido no corpo da requisição");
+    return;
+  }
 
-  res.status(status).json({
-    error: {
-      message,
-      status,
-    },
-  });
+  console.error(err);
+  sendError(res, 500, "Erro interno do servidor");
 }
