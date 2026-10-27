@@ -64,7 +64,7 @@ export async function createAppointment(
   } catch (error) {
     if (isDuplicateError(error)) {
       throw new AppError(
-        "Doctor already has an active appointment at this time",
+        "O médico já possui um atendimento agendado para este horário",
         409,
       );
     }
@@ -73,7 +73,7 @@ export async function createAppointment(
 
   const appointment = await findAppointmentById(id);
   if (!appointment) {
-    throw new AppError("Failed to create appointment", 500);
+    throw new AppError("Falha ao criar o agendamento", 500);
   }
 
   return appointment;
@@ -138,7 +138,7 @@ export async function cancelAppointment(
 ): Promise<AppointmentRecord> {
   const existing = await findAppointmentById(id);
   if (!existing) {
-    throw new AppError("Appointment not found", 404);
+    throw new AppError("Agendamento não encontrado", 404);
   }
 
   if (existing.status === "CANCELLED") {
@@ -152,7 +152,7 @@ export async function cancelAppointment(
 
   const updated = await findAppointmentById(id);
   if (!updated) {
-    throw new AppError("Appointment not found", 404);
+    throw new AppError("Agendamento não encontrado", 404);
   }
 
   return updated;
