@@ -25,7 +25,9 @@ export type ListAppointmentsFilters = {
   to?: Date;
 };
 
-function mapStatus(status: AppointmentRow["status"]): AppointmentRecord["status"] {
+function mapStatus(
+  status: AppointmentRow["status"],
+): AppointmentRecord["status"] {
   return status === "ATIVO" ? "ACTIVE" : "CANCELLED";
 }
 
