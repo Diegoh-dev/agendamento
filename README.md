@@ -66,6 +66,8 @@ Content-Type: application/json
 }
 ```
 
+`scheduledAt` deve estar em ISO 8601 com `Z` ou offset (como `2030-01-15T11:00:00-03:00`). Horários sem fuso são recusados. A resposta sempre devolve o horário em UTC.
+
 ### Listar agendamentos
 
 ```bash

@@ -7,6 +7,12 @@ function futureDate(hoursFromNow: number): string {
   return new Date(Date.now() + hoursFromNow * 60 * 60 * 1000).toISOString();
 }
 
+function spDay(daysAhead: number): string {
+  return new Intl.DateTimeFormat("en-CA", {
+    timeZone: "America/Sao_Paulo",
+  }).format(Date.now() + daysAhead * 24 * 60 * 60 * 1000);
+}
+
 async function resetDatabase(): Promise<void> {
   await pool.execute("DELETE FROM agendamentos");
 }
@@ -92,6 +98,47 @@ describe("Appointments API", () => {
       .send({ ...payload, patientName: "Bruno Lima" });
 
     expect(response.status).toBe(409);
+  });
+
+  it("accepts scheduledAt with an explicit offset", async () => {
+    const day = spDay(3);
+
+    const response = await request(app).post("/api/appointments").send({
+      patientName: "Ana Silva",
+      doctorName: "Dr. Souza",
+      scheduledAt: `${day}T11:00:00-03:00`,
+    });
+
+    expect(response.status).toBe(201);
+    expect(response.body.scheduledAt).toBe(`${day}T14:00:00.000Z`);
+  });
+
+  it("detects conflict for the same instant in different offsets", async () => {
+    const day = spDay(3);
+
+    await request(app).post("/api/appointments").send({
+      patientName: "Ana Silva",
+      doctorName: "Dr. Souza",
+      scheduledAt: `${day}T11:00:00-03:00`,
+    });
+
+    const response = await request(app).post("/api/appointments").send({
+      patientName: "Bruno Lima",
+      doctorName: "Dr. Souza",
+      scheduledAt: `${day}T14:00:00Z`,
+    });
+
+    expect(response.status).toBe(409);
+  });
+
+  it("rejects scheduledAt without a timezone", async () => {
+    const response = await request(app).post("/api/appointments").send({
+      patientName: "Ana Silva",
+      doctorName: "Dr. Souza",
+      scheduledAt: `${spDay(3)}T14:00:00`,
+    });
+
+    expect(response.status).toBe(400);
   });
 
   it("allows booking after cancellation", async () => {

@@ -12,7 +12,9 @@ export const createAppointmentSchema = z.object({
         .trim()
         .min(1, "O nome do médico é obrigatório"),
       scheduledAt: z.iso.datetime({
-        error: "A data do agendamento deve estar no formato ISO 8601 em UTC (com Z)",
+        offset: true,
+        error:
+          "A data do agendamento deve estar no formato ISO 8601 (com Z ou offset, como -03:00)",
       }),
     })
     .superRefine((data, ctx) => {
