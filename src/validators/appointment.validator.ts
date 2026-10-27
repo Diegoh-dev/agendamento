@@ -3,16 +3,24 @@ import { z } from "zod";
 export const createAppointmentSchema = z.object({
   body: z
     .object({
-      patientName: z.string().trim().min(1),
-      doctorName: z.string().trim().min(1),
-      scheduledAt: z.iso.datetime(),
+      patientName: z
+        .string({ error: "O nome do paciente é obrigatório" })
+        .trim()
+        .min(1, "O nome do paciente é obrigatório"),
+      doctorName: z
+        .string({ error: "O nome do médico é obrigatório" })
+        .trim()
+        .min(1, "O nome do médico é obrigatório"),
+      scheduledAt: z.iso.datetime({
+        error: "A data do agendamento deve estar no formato ISO 8601 em UTC (com Z)",
+      }),
     })
     .superRefine((data, ctx) => {
       const scheduledAt = new Date(data.scheduledAt);
       if (Number.isNaN(scheduledAt.getTime())) {
         ctx.addIssue({
           code: "custom",
-          message: "Invalid date",
+          message: "Data inválida",
           path: ["scheduledAt"],
         });
         return;
@@ -21,7 +29,7 @@ export const createAppointmentSchema = z.object({
       if (scheduledAt.getTime() <= Date.now()) {
         ctx.addIssue({
           code: "custom",
-          message: "Appointment cannot be in the past",
+          message: "O agendamento não pode ser no passado",
           path: ["scheduledAt"],
         });
       }
@@ -31,8 +39,16 @@ export const createAppointmentSchema = z.object({
 export const listAppointmentsSchema = z.object({
   query: z
     .object({
-      doctor: z.string().trim().min(1).optional(),
-      patient: z.string().trim().min(1).optional(),
+      doctor: z
+        .string()
+        .trim()
+        .min(1, "O filtro de médico não pode ser vazio")
+        .optional(),
+      patient: z
+        .string()
+        .trim()
+        .min(1, "O filtro de paciente não pode ser vazio")
+        .optional(),
       from: z.iso.datetime().optional(),
       to: z.iso.datetime().optional(),
     })
@@ -65,6 +81,6 @@ export const listAppointmentsSchema = z.object({
 
 export const cancelAppointmentSchema = z.object({
   params: z.object({
-    id: z.uuid(),
+    id: z.uuid({ error: "O ID do agendamento deve ser um UUID válido" }),
   }),
 });

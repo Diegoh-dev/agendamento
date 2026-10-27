@@ -11,7 +11,7 @@ export function validate(schema: ZodType) {
     });
 
     if (!result.success) {
-      const message = result.error.issues[0]?.message ?? "Invalid request";
+      const message = result.error.issues[0]?.message ?? "Requisição inválida";
       next(new AppError(message, 400));
       return;
     }
