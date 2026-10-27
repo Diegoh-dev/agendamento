@@ -3,7 +3,7 @@ import type { ZodType } from "zod";
 import { AppError } from "../errors/app-error.js";
 
 export function validate(schema: ZodType) {
-  return (req: Request, _res: Response, next: NextFunction): void => {
+  return (req: Request, res: Response, next: NextFunction): void => {
     const result = schema.safeParse({
       body: req.body,
       query: req.query,
@@ -16,10 +16,23 @@ export function validate(schema: ZodType) {
       return;
     }
 
-    const data = result.data as { body?: unknown };
+    const data = result.data as {
+      body?: unknown;
+      query?: unknown;
+      params?: unknown;
+    };
 
     if (data.body !== undefined) {
       req.body = data.body;
+    }
+
+    // Express 5 exposes req.query as a read-only getter.
+    if (data.query !== undefined) {
+      res.locals.query = data.query;
+    }
+
+    if (data.params !== undefined) {
+      res.locals.params = data.params;
     }
 
     next();
