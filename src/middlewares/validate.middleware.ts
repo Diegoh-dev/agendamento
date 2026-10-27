@@ -26,7 +26,6 @@ export function validate(schema: ZodType) {
       req.body = data.body;
     }
 
-    // Express 5 exposes req.query as a read-only getter.
     if (data.query !== undefined) {
       res.locals.query = data.query;
     }

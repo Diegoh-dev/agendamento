@@ -28,7 +28,7 @@ function parseDate(dateStr: string): [number, number, number] {
 function midnightInAppZone(year: number, month: number, day: number): Date {
   const wallClock = Date.UTC(year, month - 1, day);
   let instant = wallClock - offsetMinutesAt(wallClock) * 60_000;
-  // The offset may differ at the corrected instant around DST transitions.
+  // O deslocamento pode diferir no instante corrigido em torno das transições do horário de verão..
   instant = wallClock - offsetMinutesAt(instant) * 60_000;
   return new Date(instant);
 }
