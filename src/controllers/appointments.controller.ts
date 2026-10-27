@@ -1,10 +1,14 @@
 import type { NextFunction, Request, Response } from "express";
+import type { z } from "zod";
 import {
   cancelAppointment,
   createAppointment,
   listAppointments,
 } from "../models/appointment.model.js";
+import type { listAppointmentsSchema } from "../validators/appointment.validator.js";
 import { toAppointmentResponse } from "../views/appointment.view.js";
+
+type ListAppointmentsQuery = z.output<typeof listAppointmentsSchema>["query"];
 
 export async function create(
   req: Request,
@@ -25,18 +29,13 @@ export async function create(
 }
 
 export async function list(
-  req: Request,
+  _req: Request,
   res: Response,
   next: NextFunction,
 ): Promise<void> {
   try {
-    const appointments = await listAppointments({
-      doctor: typeof req.query.doctor === "string" ? req.query.doctor : undefined,
-      patient:
-        typeof req.query.patient === "string" ? req.query.patient : undefined,
-      from: req.query.from ? new Date(String(req.query.from)) : undefined,
-      to: req.query.to ? new Date(String(req.query.to)) : undefined,
-    });
+    const filters = res.locals.query as ListAppointmentsQuery;
+    const appointments = await listAppointments(filters);
 
     res.status(200).json(appointments.map(toAppointmentResponse));
   } catch (error) {

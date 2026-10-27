@@ -1,4 +1,19 @@
 import { z } from "zod";
+import { endOfDay, startOfDay } from "../utils/date-range.js";
+
+const DATE_ONLY = /^\d{4}-\d{2}-\d{2}$/;
+
+function dateFilter(message: string) {
+  return z
+    .union([z.iso.date(), z.iso.datetime({ offset: true })], { error: message })
+    .transform((value): { start: Date; end: Date } => {
+      if (DATE_ONLY.test(value)) {
+        return { start: startOfDay(value), end: endOfDay(value) };
+      }
+      const instant = new Date(value);
+      return { start: instant, end: instant };
+    });
+}
 
 export const createAppointmentSchema = z.object({
   body: z
@@ -51,33 +66,21 @@ export const listAppointmentsSchema = z.object({
         .trim()
         .min(1, "O filtro de paciente não pode ser vazio")
         .optional(),
-      from: z.iso.datetime().optional(),
-      to: z.iso.datetime().optional(),
+      from: dateFilter(
+        "A data inicial deve estar no formato AAAA-MM-DD ou ISO 8601",
+      ).optional(),
+      to: dateFilter(
+        "A data final deve estar no formato AAAA-MM-DD ou ISO 8601",
+      ).optional(),
     })
-    .superRefine((data, ctx) => {
-      if (data.from && Number.isNaN(new Date(data.from).getTime())) {
-        ctx.addIssue({
-          code: "custom",
-          message: "Invalid from date",
-          path: ["from"],
-        });
-      }
-
-      if (data.to && Number.isNaN(new Date(data.to).getTime())) {
-        ctx.addIssue({
-          code: "custom",
-          message: "Invalid to date",
-          path: ["to"],
-        });
-      }
-
-      if (data.from && data.to && new Date(data.from) > new Date(data.to)) {
-        ctx.addIssue({
-          code: "custom",
-          message: "from must be before or equal to to",
-          path: ["from"],
-        });
-      }
+    .transform(({ from, to, ...rest }) => ({
+      ...rest,
+      from: from?.start ?? to?.start,
+      to: to?.end ?? from?.end,
+    }))
+    .refine((query) => !(query.from && query.to && query.from > query.to), {
+      message: "A data inicial deve ser anterior ou igual à data final",
+      path: ["from"],
     }),
 });
 

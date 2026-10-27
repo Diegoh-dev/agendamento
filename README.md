@@ -76,6 +76,11 @@ GET /api/appointments?doctor=Dr.%20Souza&patient=Ana%20Silva&from=2030-01-01T00:
 
 Filtros opcionais: `doctor`, `patient`, `from`, `to`.
 
+`from` e `to` aceitam só a data (`AAAA-MM-DD`, no horário de Brasília) ou data e hora em ISO 8601 (com `Z` ou offset, como `-03:00`):
+
+- Com os dois preenchidos, o filtro é um intervalo inclusivo. Uma data sem hora vale como 00:00:00.000 em `from` e 23:59:59.999 em `to`.
+- Com só um deles preenchido, o filtro vale só para aquele dia (quando é só a data) ou só para aquele instante exato (quando tem hora).
+
 ### Cancelar agendamento
 
 ```bash
