@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Agendamento - Teste</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <header>
+      <h1>Agendamento</h1>
+    </header>
+
+    <main>
+      <div id="message" class="message hidden"></div>
+
+      <section class="card">
+        <h2>Novo agendamento</h2>
+        <form id="create-form">
+          <label>
+            Paciente
+            <input name="patientName" required />
+          </label>
+          <label>
+            Médico
+            <input name="doctorName" required />
+          </label>
+          <label>
+            Data e hora
+            <input name="scheduledAt" type="datetime-local" required />
+          </label>
+          <button type="submit">Agendar</button>
+        </form>
+      </section>
+
+      <section class="card">
+        <h2>Agendamentos</h2>
+        <form id="filter-form">
+          <label>
+            Médico
+            <input name="doctor" />
+          </label>
+          <label>
+            Paciente
+            <input name="patient" />
+          </label>
+          <label>
+            De
+            <input name="fromDate" type="date" />
+          </label>
+          <label>
+            Hora (opcional)
+            <input name="fromTime" type="time" />
+          </label>
+          <label>
+            Até
+            <input name="toDate" type="date" />
+          </label>
+          <label>
+            Hora (opcional)
+            <input name="toTime" type="time" />
+          </label>
+          <button type="submit">Buscar</button>
+          <button type="reset" class="secondary">Limpar</button>
+        </form>
+
+        <table>
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Paciente</th>
+              <th>Médico</th>
+              <th>Data</th>
+              <th>Status</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="appointments"></tbody>
+        </table>
+      </section>
+    </main>
+
+    <script src="app.js"></script>
+  </body>
+</html>

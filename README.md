@@ -43,6 +43,11 @@ npm run build
 npm start
 ```
 
+## Testando
+
+Com `npm run dev` rodando:
+
+- Front de teste: `http://localhost:3000/`
 ## Endpoints
 
 Base: `http://localhost:3000/api`
